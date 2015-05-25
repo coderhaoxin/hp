@@ -19,5 +19,15 @@
     "headers": {
       "X-Hproxy": "true"
     }
+  }, {
+    "host": "localhost:4000",
+    "path": "*",
+    "to": {
+      "host": "httpbin.org",
+      "path": "/get"
+    },
+    "headers": {
+      "X-Hproxy": "true"
+    }
   }]
 }

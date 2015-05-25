@@ -1,35 +1,9 @@
 package main
 
-import "net/url"
+// import "net/url"
 import "strings"
 import "regexp"
 import "fmt"
-
-func urlMatch(rule Rule, uri *url.URL) bool {
-	if !match(rule.Host, uri.Host) {
-		return false
-	}
-
-	if strings.Contains(rule.Path, "*") {
-		if match(rule.Path, uri.Path) {
-			return true
-		}
-	}
-	if strings.Contains(rule.Path, ":") {
-		r := newRoute(rule.Path)
-		m, _ := r.Match(uri.Path)
-
-		if m {
-			return true
-		}
-	}
-
-	if rule.Path == uri.Path {
-		return true
-	}
-
-	return false
-}
 
 func match(pattern, host string) bool {
 	pattern = regexp.QuoteMeta(pattern)

@@ -47,19 +47,17 @@ func main() {
 	config := parseJSON(confPath)
 
 	proxy.OnRequest().DoFunc(
-		func(r *http.Request, ctx *goproxy.ProxyCtx) (*http.Request, *http.Response) {
-			debug("on request - %s", r.URL.String())
-			for _, v := range config.Rules {
-				debug("check rule: %v vs url: %v", v, r.URL)
-				if urlMatch(v, r.URL) {
+		func(req *http.Request, ctx *goproxy.ProxyCtx) (*http.Request, *http.Response) {
+			debug("on request - %s", req.URL.String())
+			for _, rule := range config.Rules {
+				debug("check rule: %v vs url: %v", rule, req.URL)
+				if rule.urlMatch(req.URL) {
 					debug("matched")
-					for name, value := range v.Headers {
-						debug("set header - %s : %s", name, value)
-						r.Header.Set(name, value)
-					}
+					rule.setHeaders(req)
+					rule.redirect(req)
 				}
 			}
-			return r, nil
+			return req, nil
 		})
 
 	err := http.ListenAndServe(":"+strconv.Itoa(port), proxy)
