@@ -1,5 +1,6 @@
 package main
 
+import "github.com/elazarl/goproxy/transport"
 import "github.com/docopt/docopt-go"
 import "github.com/elazarl/goproxy"
 import . "github.com/tj/go-debug"
@@ -9,17 +10,18 @@ import "os"
 
 var debug = Debug("hproxy")
 
-const version = "0.1.0"
+const version = "0.2.0"
 const usage = `
 	Usage:
-		hproxy [-c=<config>] [-p=<port>] [-v]
+		hproxy [-c=<config>] [-p=<port>] [-v] [-i]
 		hproxy --help
 		hproxy --version
 
 	Options:
 		-c=<config> Required, config file path
 		-p=<port>   Required, listening port
-		-v         Verbose mode
+		-v          Verbose mode
+		-i          Inspect
 		--help      Show this screen
 		--version   Show version
 `
@@ -36,29 +38,48 @@ func main() {
 
 	port := toInt(args["-p"].(string))
 	verbose := toBool(args["-v"])
+	inspect := toBool(args["-i"])
 
-	debug("config: %s, port: %d, verbose: %v", confPath, port, verbose)
+	debug("config: %s, port: %d, verbose: %v, inspect: %v", confPath, port, verbose, inspect)
 
 	proxy := goproxy.NewProxyHttpServer()
-	proxy.Verbose = verbose
+	proxy.Verbose = false
 
 	debug("hproxy listening on %d", port)
 
 	config := parseJSON(confPath)
 
-	proxy.OnRequest().DoFunc(
-		func(req *http.Request, ctx *goproxy.ProxyCtx) (*http.Request, *http.Response) {
-			debug("on request - %s", req.URL.String())
-			for _, rule := range config.Rules {
-				debug("check rule: %v vs url: %v", rule, req.URL)
-				if rule.urlMatch(req.URL) {
-					debug("matched")
-					rule.setHeaders(req)
-					rule.redirect(req)
-				}
+	tr := transport.Transport{Proxy: transport.ProxyFromEnvironment}
+
+	proxy.OnRequest().DoFunc(func(req *http.Request, ctx *goproxy.ProxyCtx) (*http.Request, *http.Response) {
+		debug("on request - %s", req.URL.String())
+
+		if inspect {
+			ctx.RoundTripper = goproxy.RoundTripperFunc(func(req *http.Request, ctx *goproxy.ProxyCtx) (res *http.Response, err error) {
+				ctx.UserData, res, err = tr.DetailedRoundTrip(req)
+				return
+			})
+			logReq(req)
+		}
+
+		for _, rule := range config.Rules {
+			debug("check rule: %v vs url: %v", rule, req.URL)
+			if rule.urlMatch(req.URL) {
+				debug("matched")
+				rule.setHeaders(req)
+				rule.redirect(req)
 			}
-			return req, nil
-		})
+		}
+		return req, nil
+	})
+
+	proxy.OnResponse().DoFunc(func(res *http.Response, ctx *goproxy.ProxyCtx) *http.Response {
+		if inspect {
+			logRes(res)
+		}
+
+		return res
+	})
 
 	err := http.ListenAndServe(":"+strconv.Itoa(port), proxy)
 	if err != nil {

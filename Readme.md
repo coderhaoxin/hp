@@ -21,5 +21,28 @@ $ hproxy -c your-config.yml
 ```yaml
 ```
 
+### os config
+
+* set http proxy on `osx`
+
+```bash
+# set proxy
+networksetup -setwebproxy Wi-Fi your_host your_port
+
+# get status
+networksetup -getwebproxy Wi-Fi
+
+# close proxy
+networksetup -setwebproxystate Wi-Fi off
+
+# open proxy
+networksetup -setwebproxystate Wi-Fi on
+```
+
+* `linux`
+
+```bash
+```
+
 ### License
 MIT

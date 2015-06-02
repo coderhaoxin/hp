@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 usage() {
-  echo "usage: {fmt|run|}"
+  echo "usage: {fmt|test|run}"
 }
 
 fmt() {
