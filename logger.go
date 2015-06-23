@@ -13,25 +13,46 @@ import "io"
 var colors = []string{"31", "32", "33", "34", "35", "36"}
 var end = "\033[0m\n"
 
-func logf(format string, args ...interface{}) {
-	color := "\033[" + colors[rand.Intn(len(colors))] + "m "
-	fmt.Printf(color+format+end, args...)
+var reqStore = make(map[int64]*http.Request)
+
+type logOpts struct {
+	sid    int64
+	filter string
 }
 
-func logReq(req *http.Request) {
-	logf("request method: %s, URI: %s", req.Method, req.URL.String())
+func logReq(opts logOpts, req *http.Request) {
+	if opts.filter != "" && !match(opts.filter, req.URL.String()) {
+		return
+	}
+
+	reqStore[opts.sid] = req
+}
+
+func logRes(opts logOpts, res *http.Response) {
+	// log req
+
+	req, ok := reqStore[opts.sid]
+	if !ok {
+		return
+	}
+
+	uri := req.URL.String()
+	logf("\n%s: %s\n", req.Method, uri)
 
 	logHeader(req.Header)
 
-	body, err := ioutil.ReadAll(req.Body)
-	req.Body.Close()
-	logErr(err)
+	method := req.Method
+	if method != "GET" && method != "HEAD" {
+		body, err := ioutil.ReadAll(req.Body)
+		req.Body.Close()
+		logErr(err)
 
-	logBody(req.Header.Get("Content-Type"), body)
-}
+		logBody(req.Header.Get("Content-Type"), body)
+	}
 
-func logRes(res *http.Response) {
-	logf("statusCode: %d; status: %s, proto: %s", res.StatusCode, res.Status, res.Proto)
+	// log res
+
+	logf("\ncode: %d; status: %s, proto: %s\n", res.StatusCode, res.Status, res.Proto)
 
 	logHeader(res.Header)
 
@@ -39,12 +60,8 @@ func logRes(res *http.Response) {
 		data:        bytes.NewBuffer(nil),
 		contentType: res.Header.Get("Content-Type"),
 	})
-}
 
-func logErr(err error) {
-	if err != nil {
-		logf("err: %v", err)
-	}
+	fmt.Print("\n\n\n")
 }
 
 func logHeader(header http.Header) {
@@ -60,7 +77,7 @@ func logHeader(header http.Header) {
 	err = json.Indent(&out, data, "", "  ")
 	logErr(err)
 
-	logf("*** header ***\n\n%s", out.String())
+	logf("*** header ***\n\n%s\n", out.String())
 }
 
 func logBody(contentType string, body []byte) {
@@ -76,8 +93,19 @@ func logBody(contentType string, body []byte) {
 		err := json.Indent(&out, body, "", "  ")
 		logErr(err)
 
-		logf("*** body ***\n\n%s", out.String())
+		logf("*** body ***\n\n%s\n", out.String())
 	}
+}
+
+func logErr(err error) {
+	if err != nil {
+		logf("err: %v", err)
+	}
+}
+
+func logf(format string, args ...interface{}) {
+	color := "\033[" + colors[rand.Intn(len(colors))] + "m "
+	fmt.Printf(color+format+end, args...)
 }
 
 // writerLogger

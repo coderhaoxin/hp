@@ -10,16 +10,17 @@ import "os"
 
 var debug = Debug("hproxy")
 
-const version = "0.2.0"
+const version = "0.3.0"
 const usage = `
 	Usage:
-		hproxy [-c=<config>] [-p=<port>] [-v] [-i]
+		hproxy [-c=<config>] [-p=<port>] [-f=<filter>] [-v] [-i]
 		hproxy --help
 		hproxy --version
 
 	Options:
 		-c=<config> Required, config file path
 		-p=<port>   Required, listening port
+		-f=<filter> Filter, filter by uri
 		-v          Verbose mode
 		-i          Inspect
 		--help      Show this screen
@@ -39,8 +40,9 @@ func main() {
 	port := toInt(args["-p"].(string))
 	verbose := toBool(args["-v"])
 	inspect := toBool(args["-i"])
+	filter := toString(args["-f"])
 
-	debug("config: %s, port: %d, verbose: %v, inspect: %v", confPath, port, verbose, inspect)
+	debug("config: %s, port: %d, verbose: %v, inspect: %v, filter", confPath, port, verbose, inspect, filter)
 
 	proxy := goproxy.NewProxyHttpServer()
 	proxy.Verbose = false
@@ -59,7 +61,10 @@ func main() {
 				ctx.UserData, res, err = tr.DetailedRoundTrip(req)
 				return
 			})
-			logReq(req)
+			logReq(logOpts{
+				sid:    ctx.Session,
+				filter: filter,
+			}, req)
 		}
 
 		for _, rule := range config.Rules {
@@ -70,12 +75,16 @@ func main() {
 				rule.redirect(req)
 			}
 		}
+
 		return req, nil
 	})
 
 	proxy.OnResponse().DoFunc(func(res *http.Response, ctx *goproxy.ProxyCtx) *http.Response {
 		if inspect {
-			logRes(res)
+			logRes(logOpts{
+				sid:    ctx.Session,
+				filter: filter,
+			}, res)
 		}
 
 		return res
