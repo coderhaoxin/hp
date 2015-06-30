@@ -7,7 +7,5 @@ func parseJSON(path string) Config {
 	var c Config
 	json.Unmarshal(data, &c)
 
-	debug("config: %v", c)
-
 	return c
 }

@@ -3,8 +3,8 @@ package main
 import "testing"
 
 func TestLogf(t *testing.T) {
-	logf("name: %s", "hproxy")
-	logf("version: %d", 1)
+	logf("red", "name: %s", "hproxy")
+	logf("yellow", "version: %d", 1)
 }
 
 func TestLogBody(t *testing.T) {

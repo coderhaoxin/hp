@@ -3,10 +3,16 @@ package main
 import "testing"
 
 func TestMatch(t *testing.T) {
+	equal(match("api.github.com:3000", "api.github.com:3000"), true)
+	equal(match("api.github.com:80", "api.github.com:3000"), false)
+	equal(match("api.github.com:80", "api.github.com"), false)
 	equal(match("*.github.com", "api.github.com"), true)
+	equal(match("api.github.com", "github.com"), false)
 	equal(match("github.com", "github.com"), true)
 	equal(match("/api/*", "/api/v1/status"), true)
 	equal(match("/api/*", "/api/status"), true)
+	equal(match("/api/*", "/status"), false)
+
 }
 
 func TestRoute(t *testing.T) {

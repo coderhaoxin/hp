@@ -10,7 +10,7 @@ import "os"
 
 var debug = Debug("hproxy")
 
-const version = "0.3.0"
+const version = "0.4.0"
 const usage = `
 	Usage:
 		hproxy [-c=<config>] [-p=<port>] [-f=<filter>] [-v] [-i]
@@ -42,7 +42,7 @@ func main() {
 	inspect := toBool(args["-i"])
 	filter := toString(args["-f"])
 
-	debug("config: %s, port: %d, verbose: %v, inspect: %v, filter", confPath, port, verbose, inspect, filter)
+	debug("config: %s, port: %d, verbose: %v, inspect: %v, filter: %v", confPath, port, verbose, inspect, filter)
 
 	proxy := goproxy.NewProxyHttpServer()
 	proxy.Verbose = false
@@ -50,6 +50,7 @@ func main() {
 	debug("hproxy listening on %d", port)
 
 	config := parseJSON(confPath)
+	debug("config: %v", config)
 
 	tr := transport.Transport{Proxy: transport.ProxyFromEnvironment}
 

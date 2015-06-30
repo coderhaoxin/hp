@@ -1,7 +1,6 @@
 package main
 
 import "encoding/json"
-import "math/rand"
 import "io/ioutil"
 import "net/http"
 import "strings"
@@ -10,7 +9,13 @@ import "mime"
 import "fmt"
 import "io"
 
-var colors = []string{"31", "32", "33", "34", "35", "36"}
+var colors = map[string]string{
+	"yellow": "\033[33m",
+	"green":  "\033[32m",
+	"pink":   "\033[35m",
+	"red":    "\033[31m",
+	"none":   "",
+}
 var end = "\033[0m\n"
 
 var reqStore = make(map[int64]*http.Request)
@@ -37,7 +42,7 @@ func logRes(opts logOpts, res *http.Response) {
 	}
 
 	uri := req.URL.String()
-	logf("\n%s: %s\n", req.Method, uri)
+	logf("red", "\nRequest - %s %s", req.Method, uri)
 
 	logHeader(req.Header)
 
@@ -52,7 +57,7 @@ func logRes(opts logOpts, res *http.Response) {
 
 	// log res
 
-	logf("\ncode: %d; status: %s, proto: %s\n", res.StatusCode, res.Status, res.Proto)
+	logf("pink", "\nResponse - status: %s, proto: %s", res.Status, res.Proto)
 
 	logHeader(res.Header)
 
@@ -61,7 +66,7 @@ func logRes(opts logOpts, res *http.Response) {
 		contentType: res.Header.Get("Content-Type"),
 	})
 
-	fmt.Print("\n\n\n")
+	fmt.Print("\n\n")
 }
 
 func logHeader(header http.Header) {
@@ -77,7 +82,7 @@ func logHeader(header http.Header) {
 	err = json.Indent(&out, data, "", "  ")
 	logErr(err)
 
-	logf("*** header ***\n\n%s\n", out.String())
+	logf("none", "\n%s", out.String())
 }
 
 func logBody(contentType string, body []byte) {
@@ -93,19 +98,18 @@ func logBody(contentType string, body []byte) {
 		err := json.Indent(&out, body, "", "  ")
 		logErr(err)
 
-		logf("*** body ***\n\n%s\n", out.String())
+		logf("none", "\n%s", out.String())
 	}
 }
 
 func logErr(err error) {
 	if err != nil {
-		logf("err: %v", err)
+		logf("yellow", "err: %v", err)
 	}
 }
 
-func logf(format string, args ...interface{}) {
-	color := "\033[" + colors[rand.Intn(len(colors))] + "m "
-	fmt.Printf(color+format+end, args...)
+func logf(color string, format string, args ...interface{}) {
+	fmt.Printf(colors[color]+format+end, args...)
 }
 
 // writerLogger
