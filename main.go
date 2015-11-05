@@ -8,23 +8,23 @@ import "net/http"
 import "strconv"
 import "os"
 
-var debug = Debug("hproxy")
+var debug = Debug("hp")
 
-const version = "0.4.0"
+const version = "0.5.0"
 const usage = `
 	Usage:
-		hproxy [-c=<config>] [-p=<port>] [-f=<filter>] [-v] [-i]
-		hproxy --help
-		hproxy --version
+		hp [--config=<config>] [--port=<port>] [--filter=<filter>] [--verbose] [--inspect]
+		hp --help
+		hp --version
 
 	Options:
-		-c=<config> Required, config file path
-		-p=<port>   Required, listening port
-		-f=<filter> Filter, filter by uri
-		-v          Verbose mode
-		-i          Inspect
-		--help      Show this screen
-		--version   Show version
+		-c --config=<config> Required, config file path
+		-p --port=<port>     Required, listening port
+		-f --filter=<filter> Filter, filter by uri
+		-v --verbose         Verbose mode
+		-i --inspect         Inspect
+		-h --help            Show this screen
+		--version            Show version
 `
 
 func main() {
@@ -32,22 +32,22 @@ func main() {
 
 	debug("args: %v", args)
 
-	confPath := toString(args["-c"].(string))
+	confPath := toString(args["--config"].(string))
 	if confPath == "" {
 		confPath = "config.yml"
 	}
 
-	port := toInt(args["-p"].(string))
-	verbose := toBool(args["-v"])
-	inspect := toBool(args["-i"])
-	filter := toString(args["-f"])
+	port := toInt(args["--port"].(string))
+	verbose := toBool(args["--verbose"])
+	inspect := toBool(args["--inspect"])
+	filter := toString(args["--filter"])
 
 	debug("config: %s, port: %d, verbose: %v, inspect: %v, filter: %v", confPath, port, verbose, inspect, filter)
 
 	proxy := goproxy.NewProxyHttpServer()
 	proxy.Verbose = false
 
-	debug("hproxy listening on %d", port)
+	debug("hp listening on %d", port)
 
 	config := parseJSON(confPath)
 	debug("config: %v", config)

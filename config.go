@@ -52,6 +52,7 @@ func (r Rule) getTo() (toType, toHost, toPath string) {
 	} else if toHost == "" && toPath == "" {
 		toType = "origin"
 	}
+	// reg
 
 	return
 }
@@ -71,6 +72,11 @@ func (r Rule) redirect(req *http.Request) {
 		return
 	}
 
-	req.URL.Host = toHost
-	req.URL.Path = toPath
+	if toHost != "" {
+		req.URL.Host = toHost
+	}
+
+	if toPath != "" {
+		req.URL.Path = toPath
+	}
 }

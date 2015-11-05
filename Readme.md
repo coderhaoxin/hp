@@ -1,39 +1,40 @@
-### hproxy
 
-a command line tool for http proxy, based on [elazarl/goproxy](https://github.com/elazarl/goproxy)
+### hp
+
+A command line tool for http proxy. :dancer:
 
 ### Install
 
 ```bash
-$ go get github.com/coderhaoxin/hproxy
+$ go get github.com/coderhaoxin/hp
 ```
 
 ### Usage
 
-```
-Usage:
-  hproxy [-c=<config>] [-p=<port>] [-f=<filter>] [-v] [-i]
-  hproxy --help
-  hproxy --version
+```bash
+  Usage:
+    hp [--config=<config>] [--port=<port>] [--filter=<filter>] [--verbose] [--inspect]
+    hp --help
+    hp --version
 
-Options:
-  -c=<config> Required, config file path
-  -p=<port>   Required, listening port
-  -f=<filter> Filter, filter by uri
-  -v          Verbose mode
-  -i          Inspect
-  --help      Show this screen
-  --version   Show version
+  Options:
+    -c --config=<config> Required, config file path
+    -p --port=<port>     Required, listening port
+    -f --filter=<filter> Filter, filter by uri
+    -v --verbose         Verbose mode
+    -i --inspect         Inspect
+    -h --help            Show this screen
+    --version            Show version
 ```
 
 ```bash
 # config file: support json or yaml
 
-$ hproxy -c your-config.json
+$ hp --config your-config.json
 
 # or
 
-$ hproxy -c your-config.yml
+$ hp --config your-config.yml
 ```
 
 ### Config

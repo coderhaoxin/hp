@@ -5,12 +5,12 @@ rules:
     - host: "localhost:3001"
     - path: "/api/:type"
     - headers:
-      - "X-Hproxy-A": "hello"
-      - "X-Hproxy-B": "world"
+      - "X-HP-A": "hello"
+      - "X-HP-B": "world"
 
   - host: "localhost:3001"
   - path: "/api/*"
   - to:
     - type: "origin"
   - headers:
-    - "X-Hproxy": "true"
+    - "X-HP": "true"

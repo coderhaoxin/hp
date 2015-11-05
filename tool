@@ -1,16 +1,11 @@
 #!/usr/bin/env bash
 
 usage() {
-  echo "usage: {fmt|test|run}"
+  echo "usage: {fmt|test}"
 }
 
 fmt() {
   go fmt ./...
-}
-
-run() {
-  fmt
-  go run main.go proxy.go util.go
 }
 
 test() {
@@ -21,9 +16,6 @@ test() {
 case "$1" in
   fmt)
     fmt
-  ;;
-  run)
-    run
   ;;
   test)
     test

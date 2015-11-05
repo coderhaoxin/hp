@@ -7,8 +7,8 @@
       "path": "/api/:type"
     },
     "headers": {
-      "X-Hproxy-A": "hello",
-      "X-Hproxy-B": "world"
+      "X-HP-A": "hello",
+      "X-HP-B": "world"
     }
   }, {
     "host": "localhost:3001",
@@ -17,7 +17,7 @@
       "type": "origin"
     },
     "headers": {
-      "X-Hproxy": "true"
+      "X-HP": "true"
     }
   }, {
     "host": "localhost:4000",
@@ -27,7 +27,7 @@
       "path": "/get"
     },
     "headers": {
-      "X-Hproxy": "true"
+      "X-HP": "true"
     }
   }]
 }
