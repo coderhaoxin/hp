@@ -12,7 +12,6 @@ func TestMatch(t *testing.T) {
 	equal(match("/api/*", "/api/v1/status"), true)
 	equal(match("/api/*", "/api/status"), true)
 	equal(match("/api/*", "/status"), false)
-
 }
 
 func TestRoute(t *testing.T) {

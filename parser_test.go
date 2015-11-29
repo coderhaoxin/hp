@@ -2,12 +2,22 @@ package main
 
 import "testing"
 
+func TestParseYaml(t *testing.T) {
+	file := "./fixture/config.yml"
+	config := parseYaml(file)
+	t.Logf("config: %v", config)
+	checkParsedConfig(config)
+}
+
 func TestParseJSON(t *testing.T) {
 	file := "./fixture/config.json"
 	config := parseJSON(file)
-	t.Log("config: %v", config)
+	t.Logf("config: %v", config)
+	checkParsedConfig(config)
+}
 
-	for _, rule := range config.Rules {
+func checkParsedConfig(c Config) {
+	for _, rule := range c.Rules {
 		switch rule.Host {
 		case "localhost":
 			equal(rule.Path, "/api/v1/:type")

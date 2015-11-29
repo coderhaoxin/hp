@@ -1,3 +1,5 @@
+[![Build status][travis-img]][travis-url]
+[![License][license-img]][license-url]
 
 ### hp
 
@@ -53,6 +55,7 @@ $ hp --config your-config.yml
     "host": "localhost:3003",
     "path": "/api/v1/*",
     "headers": {
+      // will add the headers
       "X-Api-Version": "v1"
     },
     "to": {
@@ -65,6 +68,18 @@ $ hp --config your-config.yml
 * yaml
 
 ```yaml
+rules:
+- host: example.com
+  path: "/api/*"
+  to:
+    host: localhost:3000
+- host: localhost:3003
+  path: "/api/v1/*"
+  headers:
+    # will add the headers
+    X-Api-Version: v1
+  to:
+    type: origin
 ```
 
 ### os config
@@ -92,3 +107,8 @@ networksetup -setwebproxystate Wi-Fi on
 
 ### License
 MIT
+
+[travis-img]: https://img.shields.io/travis/coderhaoxin/hp.svg?style=flat-square
+[travis-url]: https://travis-ci.org/coderhaoxin/hp
+[license-img]: http://img.shields.io/badge/license-MIT-green.svg?style=flat-square
+[license-url]: http://opensource.org/licenses/MIT
