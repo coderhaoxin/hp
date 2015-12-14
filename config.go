@@ -1,82 +1,65 @@
 package main
 
-import "net/http"
-import "net/url"
-import "strings"
+import "github.com/pkg4go/execx"
+import "runtime"
 
-type Rule struct {
-	Host    string // host or host:port
-	Path    string
-	To      map[string]string
-	Headers map[string]string
+// os proxy config
+
+func myos() string {
+	return runtime.GOOS
 }
 
-type Config struct {
-	Rules []Rule
-}
-
-func (r Rule) urlMatch(uri *url.URL) bool {
-	if !match(r.Host, uri.Host) {
-		return false
-	}
-
-	if strings.Contains(r.Path, "*") {
-		if match(r.Path, uri.Path) {
-			return true
+func setProxy(proxyType, proxyHost, proxyPort, proxyState string) {
+	if proxyType != "" || proxyHost != "" || proxyPort != "" {
+		// set proxy
+		if proxyType == "" {
+			proxyType = "Wi-Fi"
 		}
-	}
-	if strings.Contains(r.Path, ":") {
-		r := newRoute(r.Path)
-		m, _ := r.Match(uri.Path)
+		if proxyHost == "" {
+			proxyHost = "localhost"
+		}
+		if proxyPort == "" {
+			proxyPort = "10086"
+		}
 
-		if m {
-			return true
+		if myos() == "darwin" {
+			str, err := execx.Run("networksetup", "-setwebproxy", proxyType, proxyHost, proxyPort)
+			if err != nil {
+				panic(err)
+			}
+			logf("set proxy result: %s", str)
 		}
 	}
 
-	if r.Path == uri.Path {
-		return true
-	}
-
-	return false
-}
-
-func (r Rule) getTo() (toType, toHost, toPath string) {
-	toType = r.To["type"]
-	toHost = r.To["host"]
-	toPath = r.To["path"]
-
-	if toType == "origin" {
-		toHost = ""
-		toPath = ""
-	} else if toHost == "" && toPath == "" {
-		toType = "origin"
-	}
-	// reg
-
-	return
-}
-
-func (r Rule) setHeaders(req *http.Request) {
-	for name, value := range r.Headers {
-		debug("set header - %s : %s", name, value)
-		req.Header.Set(name, value)
+	if proxyState != "" {
+		setProxyState(proxyType, proxyState)
 	}
 }
 
-func (r Rule) redirect(req *http.Request) {
-	toType, toHost, toPath := r.getTo()
-	debug("toType: %s, toHost: %s, toPath: %s", toType, toHost, toPath)
-
-	if toType == "origin" {
-		return
+func getProxyStatus(proxyType string) {
+	if proxyType == "" {
+		proxyType = "Wi-Fi"
 	}
 
-	if toHost != "" {
-		req.URL.Host = toHost
+	if myos() == "darwin" {
+		str, err := execx.Run("networksetup", "-getwebproxy", proxyType)
+		if err != nil {
+			panic(err)
+		}
+		logf("%s", str)
+	}
+}
+
+func setProxyState(proxyType, enable string) {
+	if proxyType == "" {
+		proxyType = "Wi-Fi"
 	}
 
-	if toPath != "" {
-		req.URL.Path = toPath
+	if myos() == "darwin" {
+		str, err := execx.Run("networksetup", "-setwebproxystate", proxyType, enable)
+		if err != nil {
+			panic(err)
+		}
+		logf("%s", str)
 	}
 }

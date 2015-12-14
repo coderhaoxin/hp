@@ -6,14 +6,16 @@ import "github.com/elazarl/goproxy"
 import . "github.com/tj/go-debug"
 import "net/http"
 import "strconv"
+import "path"
 import "os"
 
 var debug = Debug("hp")
 
-const version = "0.5.0"
+const version = "0.6.0"
 const usage = `
 	Usage:
 		hp [--config=<config>] [--port=<port>] [--filter=<filter>] [--verbose] [--inspect]
+		hp [--proxy-status] [--proxy-state=<state>] [--proxy-type=<type>] [--proxy-host=<host>] [--proxy-port=<port>]
 		hp --help
 		hp --version
 
@@ -25,12 +27,24 @@ const usage = `
 		-i --inspect         Inspect
 		-h --help            Show this screen
 		--version            Show version
+
+		--proxy-status
+		--proxy-state=<state>
+		--proxy-type=<type>
+		--proxy-host=<host>
+		--proxy-port=<port>
 `
 
 func main() {
 	args, _ := docopt.Parse(usage, os.Args[1:], true, version, false)
 
 	debug("args: %v", args)
+
+	parseProxyArgs(args)
+	if args["--config"] == nil {
+		// set proxy only
+		return
+	}
 
 	confPath := toString(args["--config"].(string))
 	if confPath == "" {
@@ -42,14 +56,23 @@ func main() {
 	inspect := toBool(args["--inspect"])
 	filter := toString(args["--filter"])
 
-	debug("config: %s, port: %d, verbose: %v, inspect: %v, filter: %v", confPath, port, verbose, inspect, filter)
+	debug("config: %s, port: %d, verbose: %v, inspect: %v, filter: %v",
+		confPath, port, verbose, inspect, filter)
 
 	proxy := goproxy.NewProxyHttpServer()
 	proxy.Verbose = false
 
 	debug("hp listening on %d", port)
 
-	config := parseJSON(confPath)
+	var config Config
+	if ext := path.Ext(confPath); ext == "json" {
+		// json
+		config = parseJSON(confPath)
+	} else {
+		// yaml
+		config = parseYaml(confPath)
+
+	}
 	debug("config: %v", config)
 
 	tr := transport.Transport{Proxy: transport.ProxyFromEnvironment}
@@ -94,5 +117,22 @@ func main() {
 	err := http.ListenAndServe(":"+strconv.Itoa(port), proxy)
 	if err != nil {
 		panic(err)
+	}
+}
+
+func parseProxyArgs(args map[string]interface{}) {
+	showProxyStatus := toBool(args["--proxy-status"])
+	proxyState := toString(args["--proxy-state"])
+	proxyType := toString(args["--proxy-type"])
+	proxyHost := toString(args["--proxy-host"])
+	proxyPort := toString(args["--proxy-port"])
+
+	debug("proxy-status: %v, proxy-state: %s, proxy-type: %s, proxy-host: %s, proxy-port: %s",
+		showProxyStatus, proxyState, proxyType, proxyHost, proxyPort)
+
+	setProxy(proxyType, proxyHost, proxyPort, proxyState)
+
+	if showProxyStatus {
+		getProxyStatus(proxyType)
 	}
 }

@@ -14,19 +14,26 @@ $ go get github.com/coderhaoxin/hp
 ### Usage
 
 ```bash
-  Usage:
-    hp [--config=<config>] [--port=<port>] [--filter=<filter>] [--verbose] [--inspect]
-    hp --help
-    hp --version
+Usage:
+  hp [--config=<config>] [--port=<port>] [--filter=<filter>] [--verbose] [--inspect]
+  hp [--proxy-status] [--proxy-state=<state>] [--proxy-type=<type>] [--proxy-host=<host>] [--proxy-port=<port>]
+  hp --help
+  hp --version
 
-  Options:
-    -c --config=<config> Required, config file path
-    -p --port=<port>     Required, listening port
-    -f --filter=<filter> Filter, filter by uri
-    -v --verbose         Verbose mode
-    -i --inspect         Inspect
-    -h --help            Show this screen
-    --version            Show version
+Options:
+  -c --config=<config> Required, config file path
+  -p --port=<port>     Required, listening port
+  -f --filter=<filter> Filter, filter by uri
+  -v --verbose         Verbose mode
+  -i --inspect         Inspect
+  -h --help            Show this screen
+  --version            Show version
+
+  --proxy-status
+  --proxy-state=<state>
+  --proxy-type=<type>
+  --proxy-host=<host>
+  --proxy-port=<port>
 ```
 
 ```bash
@@ -80,29 +87,6 @@ rules:
     X-Api-Version: v1
   to:
     type: origin
-```
-
-### os config
-
-* set http proxy on `osx`
-
-```bash
-# set proxy
-networksetup -setwebproxy Wi-Fi your_host your_port
-
-# get status
-networksetup -getwebproxy Wi-Fi
-
-# close proxy
-networksetup -setwebproxystate Wi-Fi off
-
-# open proxy
-networksetup -setwebproxystate Wi-Fi on
-```
-
-* `linux`
-
-```bash
 ```
 
 ### License
