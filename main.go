@@ -11,7 +11,7 @@ import "os"
 
 var debug = Debug("hp")
 
-const version = "0.6.0"
+const version = "0.7.0"
 const usage = `
 	Usage:
 		hp [--config=<config>] [--port=<port>] [--filter=<filter>] [--verbose] [--inspect]
@@ -92,7 +92,10 @@ func main() {
 		}
 
 		for _, rule := range config.Rules {
-			debug("check rule: %v vs url: %v", rule, req.URL)
+			debug("request - check rule: %v vs url: %v", rule, req.URL)
+			if rule.Type == "response" {
+				return req, nil
+			}
 			if rule.urlMatch(req.URL) {
 				debug("matched")
 				rule.setHeaders(req)
@@ -109,6 +112,18 @@ func main() {
 				sid:    ctx.Session,
 				filter: filter,
 			}, res)
+		}
+
+		uri := res.Request.URL
+
+		for _, rule := range config.Rules {
+			debug(" response - check rule: %v vs url: %v", rule, uri)
+			if rule.Type == "response" {
+				if rule.urlMatch(uri) {
+					debug("matched")
+					rule.setResHeaders(res)
+				}
+			}
 		}
 
 		return res

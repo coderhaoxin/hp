@@ -1,22 +1,29 @@
 rules:
 - host: localhost
-  path: "/api/v1/:type"
+  path: /api/v1/:type
   to:
     host: localhost:3001
-    path: "/api/:type"
+    path: /api/:type
+  # will add the headers in request
   headers:
     X-HP-A: hello
     X-HP-B: world
 - host: localhost:3001
-  path: "/api/*"
+  path: /api/*
   to:
     type: origin
   headers:
-    X-HP: 'true'
+    X-HP: true
 - host: localhost:4000
   path: "*"
   to:
     host: httpbin.org
-    path: "/get"
+    path: /get
   headers:
-    X-HP: 'true'
+    X-HP: true
+- host: example.org
+  path: "*"
+  type: response
+  # will add the headers in response
+  headers:
+    Access-Control-Allow-Origin: "*"

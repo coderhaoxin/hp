@@ -7,6 +7,7 @@ import "strings"
 type Rule struct {
 	Host    string // host or host:port
 	Path    string
+	Type    string // request or response
 	To      map[string]string
 	Headers map[string]string
 }
@@ -61,6 +62,13 @@ func (r Rule) setHeaders(req *http.Request) {
 	for name, value := range r.Headers {
 		debug("set header - %s : %s", name, value)
 		req.Header.Set(name, value)
+	}
+}
+
+func (r Rule) setResHeaders(res *http.Response) {
+	for name, value := range r.Headers {
+		debug("set header - %s : %s", name, value)
+		res.Header.Set(name, value)
 	}
 }
 

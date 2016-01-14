@@ -29,5 +29,12 @@
     "headers": {
       "X-HP": "true"
     }
+  }, {
+    "host": "example.org",
+    "path": "*",
+    "type": "response",
+    "headers": {
+      "Access-Control-Allow-Origin": "*"
+    }
   }]
 }

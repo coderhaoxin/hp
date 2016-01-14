@@ -48,45 +48,83 @@ $ hp --config your-config.yml
 
 ### Config
 
+* yaml
+
+```yaml
+rules:
+- host: localhost
+  path: /api/v1/:type
+  to:
+    host: localhost:3001
+    path: /api/:type
+  # will add the headers in request
+  headers:
+    X-HP-A: hello
+    X-HP-B: world
+- host: localhost:3001
+  path: /api/*
+  to:
+    type: origin
+  headers:
+    X-HP: true
+- host: localhost:4000
+  path: "*"
+  to:
+    host: httpbin.org
+    path: /get
+  headers:
+    X-HP: true
+- host: example.org
+  path: "*"
+  type: response
+  # will add the headers in response
+  headers:
+    Access-Control-Allow-Origin: "*"
+```
+
 * json
 
 ```js
 {
   "rules": [{
-    "host": "example.com",
-    "path": "/api/*",
+    "host": "localhost",
+    "path": "/api/v1/:type",
     "to": {
-      "host": "localhost:3000"
+      "host": "localhost:3001",
+      "path": "/api/:type"
+    },
+    "headers": {
+      "X-HP-A": "hello",
+      "X-HP-B": "world"
     }
   }, {
-    "host": "localhost:3003",
-    "path": "/api/v1/*",
-    "headers": {
-      // will add the headers
-      "X-Api-Version": "v1"
-    },
+    "host": "localhost:3001",
+    "path": "/api/*",
     "to": {
       "type": "origin"
+    },
+    "headers": {
+      "X-HP": "true"
+    }
+  }, {
+    "host": "localhost:4000",
+    "path": "*",
+    "to": {
+      "host": "httpbin.org",
+      "path": "/get"
+    },
+    "headers": {
+      "X-HP": "true"
+    }
+  }, {
+    "host": "example.org",
+    "path": "*",
+    "type": "response",
+    "headers": {
+      "Access-Control-Allow-Origin": "*"
     }
   }]
 }
-```
-
-* yaml
-
-```yaml
-rules:
-- host: example.com
-  path: "/api/*"
-  to:
-    host: localhost:3000
-- host: localhost:3003
-  path: "/api/v1/*"
-  headers:
-    # will add the headers
-    X-Api-Version: v1
-  to:
-    type: origin
 ```
 
 ### License
