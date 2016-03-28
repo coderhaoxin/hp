@@ -26,6 +26,7 @@ func (r Rule) urlMatch(uri *url.URL) bool {
 			return true
 		}
 	}
+
 	if strings.Contains(r.Path, ":") {
 		r := newRoute(r.Path)
 		m, _ := r.Match(uri.Path)
@@ -53,7 +54,6 @@ func (r Rule) getTo() (toType, toHost, toPath string) {
 	} else if toHost == "" && toPath == "" {
 		toType = "origin"
 	}
-	// reg
 
 	return
 }
@@ -85,6 +85,10 @@ func (r Rule) redirect(req *http.Request) {
 	}
 
 	if toPath != "" {
-		req.URL.Path = toPath
+		if strings.Contains(toPath, ":") {
+			req.URL.Path = newRoute(r.Path).RewriteNamedParams(req.URL.Path, toPath)
+		} else {
+			req.URL.Path = toPath
+		}
 	}
 }

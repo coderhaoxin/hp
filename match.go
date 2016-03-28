@@ -38,7 +38,7 @@ func newRoute(pattern string) *route {
 	return &r
 }
 
-func (r route) Match(path string) (bool, map[string]string) {
+func (r *route) Match(path string) (bool, map[string]string) {
 	matches := r.reg.FindStringSubmatch(path)
 
 	if len(matches) > 0 && matches[0] == path {
@@ -56,23 +56,16 @@ func (r route) Match(path string) (bool, map[string]string) {
 
 var urlreg = regexp.MustCompile(`:[^/#?()\.\\]+|\(\?P<[a-zA-Z0-9]+>.*\)`)
 
-func (r *route) URLWith(args ...string) string {
-	if len(args) > 0 {
-		count := len(args)
-		i := 0
-		url := urlreg.ReplaceAllStringFunc(r.pattern, func(m string) string {
-			var v interface{}
-			if i < count {
-				v = args[i]
-			} else {
-				v = m
-			}
-			i += 1
-			return fmt.Sprintf(`%v`, v)
-		})
+func (r *route) RewriteNamedParams(from, to string) string {
+	fromMatches := r.reg.FindStringSubmatch(from)
 
-		return url
+	if len(fromMatches) > 0 {
+		for i, name := range r.reg.SubexpNames() {
+			if len(name) > 0 {
+				to = strings.Replace(to, ":"+name, fromMatches[i], -1)
+			}
+		}
 	}
 
-	return r.pattern
+	return to
 }

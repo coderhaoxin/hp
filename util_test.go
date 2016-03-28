@@ -10,10 +10,10 @@ func TestConvert(t *testing.T) {
 }
 
 func TestReadfile(t *testing.T) {
-	bytes := readfile("tool")
+	bytes := readfile(".travis.yml")
 	data := string(bytes)
 
-	if strings.Split(data, "\n")[0] != "#!/usr/bin/env bash" {
+	if strings.Split(data, "\n")[1] != "language: go" {
 		t.Fail()
 	}
 }

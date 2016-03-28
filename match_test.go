@@ -39,7 +39,29 @@ func TestRoute(t *testing.T) {
 			equal(params["item"], r.params["item"])
 		}
 	}
+}
 
-	r := route.URLWith("s", "i")
-	equal(r, "/shops/s/items/i")
+func TestRewriteNamedParams(t *testing.T) {
+	route := newRoute("/from/:one/to/:two")
+
+	fixtures := []struct {
+		path    string
+		match   bool
+		pattern string
+		expect  string
+	}{
+		{"/from/to", false, "", ""},
+		{"/from/a/to/b", true, "/one/two", "/one/two"},
+		{"/from/a/to/b", true, "/from/one/to/two", "/from/one/to/two"},
+		{"/from/1/to/2", true, "/one/:one/two/:two", "/one/1/two/2"},
+		{"/from/a/to/b", true, "/:one/:two", "/a/b"},
+	}
+
+	for _, f := range fixtures {
+		match, _ := route.Match(f.path)
+		equal(match, f.match)
+		if match {
+			equal(route.RewriteNamedParams(f.path, f.pattern), f.expect)
+		}
+	}
 }

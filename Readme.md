@@ -1,3 +1,4 @@
+
 [![Build status][travis-img]][travis-url]
 [![License][license-img]][license-url]
 
@@ -10,6 +11,14 @@ A command line tool for http proxy. :dancer:
 ```bash
 $ go get github.com/coderhaoxin/hp
 ```
+
+### Dependencies
+
+* [elazarl/goproxy](https://github.com/elazarl/goproxy)
+* [haoxins/wsproxy](https://github.com/haoxins/wsproxy)
+* [docopt/docopt.go](https://github.com/docopt/docopt.go)
+* [go-yaml/yaml](https://github.com/go-yaml/yaml)
+* [tj/go-debug](https://github.com/tj/go-debug)
 
 ### Usage
 
