@@ -20,3 +20,7 @@ func TestRule(t *testing.T) {
 
 	// TODO
 }
+
+func TestSendfile(t *testing.T) {
+
+}

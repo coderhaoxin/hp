@@ -11,7 +11,7 @@ import "os"
 
 var debug = Debug("hp")
 
-const version = "0.8.0"
+const version = "0.9.0"
 const usage = `
 	Usage:
 		hp [--config=<config>] [--port=<port>] [--filter=<filter>] [--verbose] [--inspect]

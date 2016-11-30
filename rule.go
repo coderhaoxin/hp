@@ -1,5 +1,6 @@
 package main
 
+import "github.com/pkg4go/sendfile"
 import "net/http"
 import "net/url"
 import "strings"
@@ -51,6 +52,8 @@ func (r Rule) getTo() (toType, toHost, toPath string) {
 	if toType == "origin" {
 		toHost = ""
 		toPath = ""
+	} else if toType == "local" {
+		toHost = ""
 	} else if toHost == "" && toPath == "" {
 		toType = "origin"
 	}
@@ -80,6 +83,10 @@ func (r Rule) redirect(req *http.Request) {
 		return
 	}
 
+	if toType == "local" {
+
+	}
+
 	if toHost != "" {
 		req.URL.Host = toHost
 	}
@@ -91,4 +98,8 @@ func (r Rule) redirect(req *http.Request) {
 			req.URL.Path = toPath
 		}
 	}
+}
+
+func (r Rule) sendFile(res http.ResponseWriter, req *http.Request) {
+	sendfile.Send(res, req, "/path/to/file")
 }
