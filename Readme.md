@@ -18,6 +18,7 @@ $ go get github.com/coderhaoxin/hp
 * [haoxins/wsproxy](https://github.com/haoxins/wsproxy)
 * [docopt/docopt.go](https://github.com/docopt/docopt.go)
 * [go-yaml/yaml](https://github.com/go-yaml/yaml)
+* [mitchellh/go-homedir](https://github.com/mitchellh/go-homedir)
 * [tj/go-debug](https://github.com/tj/go-debug)
 
 ### Usage
