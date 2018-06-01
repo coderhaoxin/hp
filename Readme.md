@@ -1,4 +1,6 @@
 
+# Deprecated
+
 [![Build status][travis-img]][travis-url]
 [![License][license-img]][license-url]
 
