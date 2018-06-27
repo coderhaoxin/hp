@@ -47,7 +47,7 @@ func main() {
 	}
 
 	port := toInt(args["--port"].(string))
-	verbose := toBool(args["--verbose"])
+	// verbose := toBool(args["--verbose"])
 	inspect := toBool(args["--inspect"])
 	filter := toString(args["--filter"])
 
