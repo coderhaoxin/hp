@@ -60,22 +60,18 @@ func (r Rule) getTo() (toType, toHost, toPath string) {
 
 func (r Rule) setHeaders(req *http.Request) {
 	for name, value := range r.Headers {
-		debug("set header - %s : %s", name, value)
 		req.Header.Set(name, value)
 	}
 }
 
 func (r Rule) setResHeaders(res *http.Response) {
 	for name, value := range r.Headers {
-		debug("set header - %s : %s", name, value)
 		res.Header.Set(name, value)
 	}
 }
 
 func (r Rule) redirect(req *http.Request) {
 	toType, toHost, toPath := r.getTo()
-	debug("toType: %s, toHost: %s, toPath: %s", toType, toHost, toPath)
-
 	if toType == "origin" {
 		return
 	}

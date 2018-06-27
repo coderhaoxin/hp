@@ -3,13 +3,10 @@ package main
 import "github.com/elazarl/goproxy/transport"
 import "github.com/docopt/docopt-go"
 import "github.com/elazarl/goproxy"
-import . "github.com/tj/go-debug"
 import "net/http"
 import "strconv"
 import "path"
 import "os"
-
-var debug = Debug("hp")
 
 const version = "0.8.0"
 const usage = `
@@ -38,8 +35,6 @@ const usage = `
 func main() {
 	args, _ := docopt.Parse(usage, os.Args[1:], true, version, false)
 
-	debug("args: %v", args)
-
 	parseProxyArgs(args)
 	if args["--config"] == nil {
 		// set proxy only
@@ -56,13 +51,8 @@ func main() {
 	inspect := toBool(args["--inspect"])
 	filter := toString(args["--filter"])
 
-	debug("config: %s, port: %d, verbose: %v, inspect: %v, filter: %v",
-		confPath, port, verbose, inspect, filter)
-
 	proxy := goproxy.NewProxyHttpServer()
 	proxy.Verbose = false
-
-	debug("hp listening on %d", port)
 
 	var config Config
 	if ext := path.Ext(confPath); ext == "json" {
@@ -73,13 +63,10 @@ func main() {
 		config = parseYaml(confPath)
 
 	}
-	debug("config: %v", config)
 
 	tr := transport.Transport{Proxy: transport.ProxyFromEnvironment}
 
 	proxy.OnRequest().DoFunc(func(req *http.Request, ctx *goproxy.ProxyCtx) (*http.Request, *http.Response) {
-		debug("on request - %s", req.URL.String())
-
 		if inspect {
 			ctx.RoundTripper = goproxy.RoundTripperFunc(func(req *http.Request, ctx *goproxy.ProxyCtx) (res *http.Response, err error) {
 				ctx.UserData, res, err = tr.DetailedRoundTrip(req)
@@ -92,12 +79,10 @@ func main() {
 		}
 
 		for _, rule := range config.Rules {
-			debug("request - check rule: %v vs url: %v", rule, req.URL)
 			if rule.Type == "response" {
 				return req, nil
 			}
 			if rule.urlMatch(req.URL) {
-				debug("matched")
 				rule.setHeaders(req)
 				rule.redirect(req)
 			}
@@ -117,10 +102,8 @@ func main() {
 		uri := res.Request.URL
 
 		for _, rule := range config.Rules {
-			debug(" response - check rule: %v vs url: %v", rule, uri)
 			if rule.Type == "response" {
 				if rule.urlMatch(uri) {
-					debug("matched")
 					rule.setResHeaders(res)
 				}
 			}
@@ -141,9 +124,6 @@ func parseProxyArgs(args map[string]interface{}) {
 	proxyType := toString(args["--proxy-type"])
 	proxyHost := toString(args["--proxy-host"])
 	proxyPort := toString(args["--proxy-port"])
-
-	debug("proxy-status: %v, proxy-state: %s, proxy-type: %s, proxy-host: %s, proxy-port: %s",
-		showProxyStatus, proxyState, proxyType, proxyHost, proxyPort)
 
 	setProxy(proxyType, proxyHost, proxyPort, proxyState)
 
